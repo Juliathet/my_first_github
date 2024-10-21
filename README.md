@@ -1,65 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>About Me</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
-  <link href="https://fonts.googleapis.com/css?family=Archivo" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Niramit" rel="stylesheet">
-  <script src="main.js"></script>
-</head>
-<body>
-    <header class="text-center text-dark d-flex">
-        <div class="container my-auto">
-          <div class="row">
-            <div class="col-12 my-auto">
-              <h1 class="text-uppercase">
-                <strong>About Me</strong>
-              </h1>
-        </div>
-      </header>
+Part 1: Data Structure Implementation
+class User:
+    def __init__(self, name):
+        self.name = name
+        self.friends = []
 
-      <header class="pic2 text-right text-white d-flex">
-        <div class="container my-auto">
-          <div class="row">
-            <div class="col-12 my-auto">
-              <h1>
-                <strong>Schindler's List</strong>
-              </h1>
-              <p>Favorite Movie</p>
-            </div>
-      </header>
+    def add_friend(self, friend):
+        if friend not in self.friends:
+            self.friends.append(friend)
+            friend.friends.append(self)
 
-      <header class="pic3 text-right text-white d-flex">
-        <div class="container my-auto">
-          <div class="row">
-            <div class="col-12 my-auto">
-              <h1>
-                <strong>Breaking Bad</strong>
-              </h1>
-              <p>Favorite TV Show</p>
-        </div>
-      </header>
+class SocialNetwork:
+    def __init__(self):
+        self.users = {}
 
-      <header class="pic4 text-right text-white d-flex">
-        <div class="container my-auto">
-          <div class="row">
-            <div class="col-12 my-auto">
-              <h1>
-                <strong>Spirited Away</strong>
-              </h1>
-              <p>Favorite Anime</p>
-        </div>
-      </header>
+    def add_user(self, name):
+        if name not in self.users:
+            self.users[name] = User(name)
+        return self.users[name]
 
-   
+    def add_friendship(self, name1, name2):
+        user1 = self.add_user(name1)
+        user2 = self.add_user(name2)
+        user1.add_friend(user2)
 
+# Part 2: Algorithm Implementation
+def recommend_friends(network, target_name):
+    if target_name not in network.users:
+        return []
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-</body>
-</html>
+    target_user = network.users[target_name]
+    recommendations = {}
+    queue = [(friend, 1) for friend in target_user.friends]
+    visited = set([target_user] + target_user.friends)
+
+    while queue:
+        current_user, distance = queue.pop(0)
+        
+        if distance == 2:
+            if current_user not in recommendations:
+                recommendations[current_user] = 0
+            recommendations[current_user] += 1
+        
+        if distance < 2:
+            for friend in current_user.friends:
+                if friend not in visited:
+                    visited.add(friend)
+                    queue.append((friend, distance + 1))
+
+    sorted_recommendations = sorted(recommendations.items(), key=lambda x: (-x[1], x[0].name))
+    return [user.name for user, count in sorted_recommendations]
+
+# Part 3: Testing/Usage
+def main():
+    # Create the social network
+    network = SocialNetwork()
+
+    # Add friendships as shown in the image
+    network.add_friendship("Uncle Dude", "Jack")
+    network.add_friendship("Uncle Dude", "Sara")
+    network.add_friendship("Uncle Dude", "Emily")
+    network.add_friendship("Sara", "Bob")
+
+    # Test the recommendation system
+    target_user = "Uncle Dude"
+    recommendations = recommend_friends(network, target_user)
+    print(f"Friend recommendations for {target_user}: {recommendations}")
+
+    # Additional test cases can be added here
+
+if __name__ == "__main__":
+    main()
