@@ -1,4 +1,4 @@
-Part 1: Data Structure Implementation (Grapgh Algorithm)
+Part 1: Data Structure Implementation (Grapgh Algorithm- Undirected Graph, Directed Graph, Weighted Graph)
 class User:
     def __init__(self, name):
         self.name = name
